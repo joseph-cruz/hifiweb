@@ -34,25 +34,27 @@ export class VOIPWorkletProcessor extends AudioWorkletProcessor {
     // Capture microphone input, and send it to the main thread when we've queued more than a specified chunk size
 
     // Interleave stereo channels into one data stream
-    let inbufferfloat = new Float32Array(inputs[0][0].length);
-    let idx =  0;
-    //for (let i = 0; i < inputs.length; i++) {
-      for (let k = 0; k < inputs[0][0].length; k++) {
-        inbufferfloat[idx++] = inputs[0][0][k];
+    for (let i = 0; i < inputs.length; i++) {
+      let inbufferfloat = new Float32Array(inputs[i][0].length);
+      let idx =  0;
+      for (let k = 0; k < inputs[i][0].length; k++) {
+        inbufferfloat[idx++] = inputs[i][0][k];
       }
-    //}
-
-    this.inputbuffer.add(inbufferfloat);
+      var resampler = new Resampler(48000, 24000, 1, inbufferfloat);
+      resampler.resampler(inbufferfloat.length);
+      this.inputbuffer.add(resampler.outputBuffer);
+    }
 
     let bufferlength = this.inputbuffer.length();
     if (bufferlength >= this.inputChunkSize / 4) {
       let chunk = new Float32Array(this.inputChunkSize / 4);
-      let inbuffer = new Int16Array(this.inputChunkSize / 4);
+      let inbuffer = new Int16Array(this.inputChunkSize / 2);
 
       this.inputbuffer.read(chunk, this.inputChunkSize / 4);
 
-      let idx =  0;
+      let idx = 0;
       for (let i = 0; i < chunk.length; i++) {
+        inbuffer[idx++] = chunk[i] * 32768;
         inbuffer[idx++] = chunk[i] * 32768;
       }
 
