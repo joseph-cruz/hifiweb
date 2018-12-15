@@ -7,7 +7,7 @@ export class VOIPWorkletProcessor extends AudioWorkletProcessor {
     super();
     this.buffer = new RingBuffer();
     this.inputbuffer = new RingBuffer();
-    this.sampleRate = 48000; // FIXME - I expected sampleRate to be 24000 acording to hifi's source, but it appear to be 48000
+    this.sampleRate = 24000; // FIXME - I expected sampleRate to be 24000 acording to hifi's source, but it appear to be 48000
     this.inputChunkSize = 960;
     this.port.onmessage = (event) => this.handleMessage(event.data);
     console.log('Initialized VOIP worklet');
@@ -40,7 +40,7 @@ export class VOIPWorkletProcessor extends AudioWorkletProcessor {
       for (let k = 0; k < inputs[i][0].length; k++) {
         inbufferfloat[idx++] = inputs[i][0][k];
       }
-      var resampler = new Resampler(48000, 24000, 1, inbufferfloat);
+      var resampler = new Resampler(48000, this.sampleRate, 1, inbufferfloat);
       resampler.resampler(inbufferfloat.length);
       this.inputbuffer.add(resampler.outputBuffer);
     }
