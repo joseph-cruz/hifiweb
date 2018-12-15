@@ -45,15 +45,15 @@ export class VOIPWorkletProcessor extends AudioWorkletProcessor {
     this.inputbuffer.add(inbufferfloat);
 
     let bufferlength = this.inputbuffer.length();
-    if (bufferlength >= this.inputChunkSize / 2) {
-      let chunk = new Float32Array(this.inputChunkSize / 2);
-      let inbuffer = new Int16Array(this.inputChunkSize / 2);
+    if (bufferlength >= this.inputChunkSize / 4) {
+      let chunk = new Float32Array(this.inputChunkSize / 4);
+      let inbuffer = new Int16Array(this.inputChunkSize / 4);
 
-      this.inputbuffer.read(chunk, this.inputChunkSize / 2);
+      this.inputbuffer.read(chunk, this.inputChunkSize / 4);
 
       let idx =  0;
       for (let i = 0; i < chunk.length; i++) {
-        inbuffer[i] = chunk[i] * 32768;
+        inbuffer[idx++] = chunk[i] * 32768;
       }
 
       // Send encoded audio stream data back to the main thread
